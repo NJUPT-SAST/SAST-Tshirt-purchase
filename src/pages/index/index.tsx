@@ -13,6 +13,8 @@ const Index = () => {
         Taro.navigateTo({ url: "/pages/form/index" })
       }} className='btn-welcome' type='default'
       >马上登记</Button>
+      <View className='wrapper'><Text className='info underline'>隐私策略</Text></View>
+      <Text className='info copyright'>©2022 SAST</Text>
     </View>
   );
 };

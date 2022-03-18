@@ -12,9 +12,9 @@ page {
 
 .logo {
   display: block;
-  width  : 500px;
-  height : 500px;
-  margin : 100px auto;
+  width  : 500rpx;
+  height : 500rpx;
+  margin : 100rpx auto;
 }
 
 .title,
@@ -49,4 +49,19 @@ button[type=default].btn-welcome{
   background-color: #ff5678;
   color: white;
   width: 70%;
+}
+
+.info{
+  text-align: center;
+  margin-top: 20rpx;
+  font-size: 27rpx;
+}
+
+.underline{
+  text-decoration: underline;
+}
+
+.copyright{
+  margin-top: 120rpx;
+  margin-bottom: 40rpx;
 }
