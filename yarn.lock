@@ -1471,7 +1471,7 @@
     resolve "^1.6.0"
     yauzl "2.10.0"
 
-"@tarojs/mini-runner@3.4.3":
+"@tarojs/mini-runner@3.4.3", "@tarojs/mini-runner@^3.4.3":
   version "3.4.3"
   resolved "https://registry.npmmirror.com/@tarojs/mini-runner/-/mini-runner-3.4.3.tgz#1af97ecb71e2eca372cb77aa5bea31e8f041b4a9"
   integrity sha512-/dSOCZd0FK/Bm0TtQChY1i7BZ8XehdiI8eyE+9yJVZXuS/Ye7SOFdu1nHi1Q2O5nLCtlScwnlwlpwbWx6LN5kg==
@@ -13790,10 +13790,8 @@ watchpack@^1.7.4:
   resolved "https://registry.npmmirror.com/watchpack/-/watchpack-1.7.5.tgz#1267e6c55e0b9b5be44c2023aed5437a2c26c453"
   integrity sha512-9P3MWk6SrKjHsGkLT2KHXdQ/9SNkyoJbabxnKOoJepsvJjJG8uYTR3yTPxPQvNDI3w4Nz1xnE0TLHK4RIVe/MQ==
   dependencies:
-    chokidar "^3.4.1"
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
-    watchpack-chokidar2 "^2.0.1"
   optionalDependencies:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
