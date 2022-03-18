@@ -9,12 +9,14 @@ const Index = () => {
     <View className='wrapper'>
       <Image className='logo' src={welcomeImg} />
       <Text className='title'>SAST T-Shirt 购买登记</Text>
-      <Button onClick={() => {
-        Taro.navigateTo({ url: "/pages/form/index" })
-      }} className='btn-welcome' type='default'
-      >马上登记</Button>
-      <View className='wrapper'><Text className='info underline'>隐私策略</Text></View>
-      <Text className='info copyright'>©2022 SAST</Text>
+      <View id='bottom'>
+        <Button onClick={() => {
+          Taro.navigateTo({ url: "/pages/form/index" })
+        }} className='btn-welcome' type='default'
+        >马上登记</Button>
+        <Text className='info underline'>隐私策略</Text>
+        <Text className='info copyright'>©2022 SAST</Text>
+      </View>
     </View>
   );
 };
