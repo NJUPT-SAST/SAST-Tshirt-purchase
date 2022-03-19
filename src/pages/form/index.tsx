@@ -46,7 +46,8 @@ function Form() {
             onChange={(e) => { console.log(e) }}
           >
             <View className='picker'>
-              <Text>尺码</Text><View className='picker-label'>{this.state.selectorChecked}</View><Image className='arrow' src={arrow} style='height:60rpx;width:60rpx;' />
+              <Text className='text'>尺码</Text>
+              <View className='picker-label'>{data.selectorChecked}</View><Image className='arrow' src={arrow} />
             </View>
           </Picker>
         </View>

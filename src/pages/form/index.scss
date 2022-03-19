@@ -5,6 +5,10 @@ button[type="default"] {
   width: 70%;
 }
 
+text {
+  margin-right: 30rpx;
+}
+
 .container {
   margin: 70rpx;
   font-size: large;
@@ -13,9 +17,6 @@ button[type="default"] {
     justify-content: space-around;
     margin-top: 70rpx;
     margin-bottom: 70rpx;
-    text {
-      margin-right: 30rpx;
-    }
     input {
       margin: 10rpx 10rpx 10rpx 40rpx;
       height: 20rpx;
@@ -35,7 +36,7 @@ button[type="default"] {
 }
 
 .pageInfo {
-  font-size: 25rpx;
+  font-size: 28rpx;
   color: rgb(138, 138, 138);
 }
 
@@ -48,7 +49,8 @@ button[type="default"] {
   margin-left: 40rpx;
 }
 
-.arrow{
-  right:0;
+.arrow {
+  right: 0;
   margin-left: auto;
+  height:50rpx;width:50rpx;
 }
