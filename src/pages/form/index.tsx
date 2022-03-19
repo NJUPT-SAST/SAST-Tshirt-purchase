@@ -13,7 +13,7 @@ import {
 import { stringify } from '@tarojs/runtime'
 import Taro from '@tarojs/taro'
 import React, { Component, useState } from 'react'
-import './index.sass'
+import './index.scss'
 
 class PagePicker extends React.Component {
   state = {
@@ -61,20 +61,26 @@ class PagePicker extends React.Component {
 function Form() {
   return (
     <>
-      <View>
-        <View className='example-body'>
-          <Text>学号:</Text>
+      <View className='container'>
+
+        <View className='input-body'>
+          <Text>学号</Text>
           <Input type='text' placeholder='请输入你的学号' focus />
         </View>
 
-        <View className='example-body'>
-          <Text>姓名:</Text>
+        <View className='input-body'>
+          <Text>姓名</Text>
           <Input type='text' placeholder='请输入你的姓名' focus />
         </View>
 
+        <View className='input-body'>
+          <PagePicker />
+        </View>
+        
+
       </View>
 
-      <PagePicker />
+      
 
       <View className='wrapper'>
         <Button
