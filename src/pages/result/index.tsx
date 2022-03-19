@@ -19,7 +19,12 @@ function notice(cases){
   }
 }
 
-function Result() {
+function Result(props) {
+  Taro.showToast({
+    title: `props.express: ${props.express}`,
+    icon: 'success',
+    duration: 2000
+  })
 const [cases, setCases]=useState('express');
   return (
     <View className='wrapper'>
@@ -27,7 +32,7 @@ const [cases, setCases]=useState('express');
         src={Imgs(cases)}
         className='logo'
       ></Image>
-      <Text className='title'>{notice(cases)}</Text>
+      <Text className='title'>{notice(props.express)}</Text>
       <Button type='default' className='back' onClick={()=>{
         Taro.navigateTo({url:'/pages/form/index'})
       }}

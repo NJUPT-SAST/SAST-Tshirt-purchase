@@ -92,7 +92,6 @@ function Form() {
       <View className='wrapper'>
         <Button
           onClick={() => {
-            // Taro.navigateTo({ url: '/pages/result/index' })
             Taro.cloud.callFunction({
               name: "makeOrder",
               data: {
@@ -114,15 +113,16 @@ function Form() {
                       icon: 'success',
                       duration: 2000
                     })
-                    shirtCollection.add({
-                      data: {
-                        description: "learn cloud database",
-                        due: new Date("2018-09-01"),
-                        requireMail: data.requireMail,
-                        mailAddress: data.mailAddress === '' ? null : data.mailAddress,
-                        done: false
-                      }
-                    })
+                    // shirtCollection.add({
+                    //   data: {
+                    //     description: "learn cloud database",
+                    //     due: new Date("2018-09-01"),
+                    //     requireMail: data.requireMail,
+                    //     mailAddress: data.mailAddress === '' ? null : data.mailAddress,
+                    //     done: false
+                    //   }
+                    // })
+                    Taro.navigateTo({ url: `/pages/result/index?express=${data.requireMail?'express':'order'}` })
                     /* 成功回调 */
                   },
                   fail(e) {
