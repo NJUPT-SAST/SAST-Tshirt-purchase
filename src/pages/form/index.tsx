@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import {
   View,
   Text,
@@ -5,30 +6,52 @@ import {
   Picker,
   Input,
   Image,
+  Label,
+  Radio,
+  RadioGroup,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
 import './index.scss'
 import arrow from '../../imgs/right-arrow.svg'
 
+
+
 function Form() {
-  function randomString(length, chars) {
-    var result = '';
-    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-    return result;
+  function AddressInput(props) {
+    if (data.requireMail) {
+      return (
+        <View className='input-body'>
+          <Text>地址</Text>
+          <Input className='input' type='text' placeholder='请输入地址' focus />
+        </View>
+      )
+    }
+    else return null
   }
-  var nonce_str = randomString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
   const [data, setData] = useState({
     studentId: '',
     name: '',
     size: 'M',
+    requireMail: false,
+    mailAddress: '',
   })
+
+  Taro.cloud.init({
+    env: 'cloud1-8g1hkg947e4303c1'
+  })
+
+  const db = Taro.cloud.database()
+  const shirtCollection = db.collection('shirt')
+
   return (
     <View className='container'>
 
       <Text className='pageTitle'>信息登记</Text>
       <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
+
+
       <View className='input-body'>
         <Text>学号</Text>
         <Input className='input' type='text' placeholder='请输入你的学号' focus />
@@ -40,31 +63,40 @@ function Form() {
       </View>
 
       <View className='page-section'>
-        <View>
-          <Picker
-            mode='selector'
-            range={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
-            onChange={(e) => { console.log(e) }}
-          >
-            <View className='picker'>
-              <Text className='text'>尺码</Text>
-              <View className='picker-label'>{data.size}</View><Image className='arrow' src={arrow} />
-            </View>
-          </Picker>
-        </View>
+        <Picker
+          mode='selector'
+          value={3}
+          range={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
+          onChange={(e) => { setData(prev => { return { ...prev, size: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'][e.detail.value] } }) }}
+        >
+          <View className='picker'>
+            <Text className='text'>尺码</Text>
+            <View className='picker-label'>{data.size}</View><Image className='arrow' src={arrow} />
+          </View>
+        </Picker>
+      </View>
+
+      <View>
+        <RadioGroup className='input-body' onChange={(e) => { e.detail.value === 'yep' ? setData((prev) => { return { ...prev, requireMail: true } }) : setData((prev) => { return { ...prev, requireMail: false } }) }}>
+          <Text className='text'>是否需要邮寄</Text>
+          <Label className='radio-list-label'>
+            <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={data.requireMail}>是</Radio>
+          </Label>
+          <Label className='radio-list-label'>
+            <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!data.requireMail}>否</Radio>
+          </Label>
+        </RadioGroup>
+        <AddressInput />
       </View>
 
       <View className='wrapper'>
         <Button
           onClick={() => {
             // Taro.navigateTo({ url: '/pages/result/index' })
-            Taro.cloud.init({
-              env: 'cloud1-8g1hkg947e4303c1'
-            })
             Taro.cloud.callFunction({
               name: "makeOrder",
               data: {
-                price: 100,
+                price: 1,
                 /* 开发者自定义参数 */
               },
               success: (res) => {
@@ -77,6 +109,20 @@ function Form() {
                   ...payment,
                   success(e) {
                     console.log(e)
+                    Taro.showToast({
+                      title: '支付成功！',
+                      icon: 'success',
+                      duration: 2000
+                    })
+                    shirtCollection.add({
+                      data: {
+                        description: "learn cloud database",
+                        due: new Date("2018-09-01"),
+                        requireMail: data.requireMail,
+                        mailAddress: data.mailAddress === '' ? null : data.mailAddress,
+                        done: false
+                      }
+                    })
                     /* 成功回调 */
                   },
                   fail(e) {
@@ -86,49 +132,6 @@ function Form() {
                 });
               }
             });
-            // Taro.cloud.callFunction({
-            //   // 要调用的云函数名称
-            //   name: 'login',
-            // }).then(cloud_function_res => {
-            //   console.log(cloud_function_res)
-            //   let output: any = cloud_function_res;
-            //   let openId: string = output.result.userInfo.openId;
-            //   console.log(output.result.userInfo.openId)
-            //   Taro.request({
-            //     url: "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi",
-            //     header: {},
-            //     data: {
-            //       "appid": "wx3d1f1303e46d91a5",
-            //       "mchid": "1623194528",
-            //       "description": "NJUPT SAST T-Shirt",
-            //       "out_trade_no": nonce_str,
-            //       "notify_url": "https://api.mch.weixin.qq.com/v3/pay/transactions/notify",
-            //       "amount": {
-            //         "total": 1,
-            //         "currency": "CNY"
-            //       },
-            //       "payer": {
-            //         "openid": openId
-            //       }
-            //     },
-            //     success: (res) => {
-            //       console.log(res)
-            //       // Taro.requestPayment({
-            //       //   timeStamp: '',
-            //       //   nonceStr: '',
-            //       //   package: '',
-            //       //   signType: 'MD5',
-            //       //   paySign: '',
-            //       //   success(pay_res) { },
-            //       //   fail(pay_res) { }
-            //       // })
-            //     },
-            //     method: 'POST',
-            //   })
-            // }).catch(err => {
-            //   console.log(err)
-            //   // handle error
-            // })
           }}
           className='btn-submit'
           type='default'
@@ -136,7 +139,6 @@ function Form() {
           提交并支付
         </Button>
       </View>
-
     </View>
   )
 }

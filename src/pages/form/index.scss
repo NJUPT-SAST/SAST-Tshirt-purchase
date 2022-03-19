@@ -15,8 +15,7 @@ text {
   .input-body {
     flex-direction: column;
     justify-content: space-around;
-    margin-top: 70rpx;
-    margin-bottom: 70rpx;
+    margin: 70rpx 0;
     input {
       margin: 10rpx 10rpx 10rpx 40rpx;
       height: 20rpx;
@@ -54,4 +53,8 @@ text {
   margin-left: auto;
   height: 50rpx;
   width: 50rpx;
+}
+
+.radio-list-label {
+  margin-right: 1rem;
 }
