@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import {
   View,
   Text,
@@ -20,7 +21,7 @@ import arrow from '../../imgs/right-arrow.svg'
 class PagePicker extends React.Component {
   state = {
     selector: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    selectorChecked: 'M'
+    selectorChecked: 'M',
   }
 
   onChange = (e) => {
@@ -39,7 +40,13 @@ class PagePicker extends React.Component {
             onChange={this.onChange}
           >
             <View className='picker'>
-              <Text>尺码</Text><View className='picker-label'>{this.state.selectorChecked}</View><Image className='arrow' src={arrow} style='height:60rpx;width:60rpx;' />
+              <Text>尺码</Text>
+              <View className='picker-label'>{this.state.selectorChecked}</View>
+              <Image
+                className='arrow'
+                src={arrow}
+                style='height:60rpx;width:60rpx;'
+              />
             </View>
           </Picker>
         </View>
@@ -52,26 +59,46 @@ function Form() {
   return (
     <>
       <View className='container'>
+        <RadioGroup>
+          <Label className='radio-list__label' >
+            <Radio
+              className='radio-list__radio' value='1' checked={false} >
+              dfsa
+            </Radio>
+          </Label>
+
+        </RadioGroup>
+      </View>
+
+      <View className='container'>
         <Text className='pageTitle'>信息登记</Text>
-        <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
+        <Text className='pageInfo'>
+          请填写个人信息并支付费用预订SAST T-Shirt
+        </Text>
         <View className='input-body'>
           <Text>学号</Text>
-          <Input className='input' type='text' placeholder='请输入你的学号' focus />
+          <Input
+            className='input'
+            type='text'
+            placeholder='请输入你的学号'
+            focus
+          />
         </View>
 
         <View className='input-body'>
           <Text>姓名</Text>
-          <Input className='input' type='text' placeholder='请输入你的姓名' focus />
+          <Input
+            className='input'
+            type='text'
+            placeholder='请输入你的姓名'
+            focus
+          />
         </View>
 
         <View className='input-body'>
           <PagePicker />
         </View>
-
-
       </View>
-
-
 
       <View className='wrapper'>
         <Button
