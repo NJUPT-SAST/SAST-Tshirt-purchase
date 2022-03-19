@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Taro from "@tarojs/taro";
 import { View, Text, Button, Image } from "@tarojs/components";
 import welcomeImg from "../../imgs/welcome.png"
 import './index.scss'
 
 const Index = () => {
+  const [data, setData] = useState({ auth: false });
   return (
     <View className='wrapper'>
       <Image className='logo' src={welcomeImg} />
@@ -14,16 +15,38 @@ const Index = () => {
           Taro.showModal({
             title: '服务协议',
             content: '请你务必认真阅读、充分理解“隐私政策”各条款，并在同意后点击“同意”按钮，才能进行下一步操作。',
-            success (res) {
-              if (res.confirm) {
+            success(e) {
+              if (e.confirm) {
                 console.log('用户点击确定')
-                Taro.navigateTo({ url: "/pages/form/index" })
-              } else if (res.cancel) {
-                console.log('用户点击取消')
+                Taro.getSetting({
+                  withSubscriptions: true,
+                  success: res => {
+                    console.log(res)
+                    if (!res.authSetting["scope.userInfo"]) {
+                      while (!data.auth) {
+                        Taro.authorize({
+                          scope: 'scope.userInfo',
+                          success: (auth_res) => {
+                            console.log(auth_res);
+                            setData((prev) => { return { ...prev, auth: true } });
+                            Taro.navigateTo({ url: '/pages/form/index' })
+                          }
+                        })
+                      }
+                    } else {
+                      setData((prev) => { return { ...prev, auth: true } });
+                      Taro.login({
+                        success: function (login_res) {
+                          console.log(login_res);
+                          Taro.navigateTo({ url: '/pages/form/index' })
+                        }
+                      })
+                    }
+                  }
+                })
               }
             }
           })
-          
         }} className='btn-welcome' type='default'
         >马上登记</Button>
         <Text className='info underline' onClick={() => {
