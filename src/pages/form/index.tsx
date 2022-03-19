@@ -6,6 +6,11 @@ import {
   Picker,
   Input,
   Image,
+  Label,
+  Radio,
+  RadioGroup,
+  Switch,
+  Form as TaroForm
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
@@ -21,13 +26,16 @@ function Form() {
   var nonce_str = randomString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
   const [data, setData] = useState({
-    selectorChecked: 'M'
+    selectorChecked: '请选择尺码',
+    expressSelector: false
   })
+
   return (
     <View className='container'>
 
       <Text className='pageTitle'>信息登记</Text>
       <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
+
 
       <View className='input-body'>
         <Text>学号</Text>
@@ -44,7 +52,7 @@ function Form() {
           <Picker
             mode='selector'
             range={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
-            onChange={(e) => { console.log(e) }}
+            onChange={(e) => { setData(s => { return { ...s, selectorChecked: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'][e.detail.value] } }) }}
           >
             <View className='picker'>
               <Text className='text'>尺码</Text>
@@ -52,6 +60,22 @@ function Form() {
             </View>
           </Picker>
         </View>
+
+        <RadioGroup className='input-body' onChange={(e) => { /* e.detail.value === 'yep' ? setData({ expressSelector: true }) */ }}>
+          <Text className='text'>是否需要快递</Text>
+          <Label className='radio-list__label'>
+            <Radio className='radio-list__radio' value='yep' color='#ff5678' checked={false}>是</Radio>
+          </Label>
+          <Label className='radio-list__label'>
+            <Radio className='radio-list__radio' value='nope' color='#ff5678' checked>否</Radio>
+          </Label>
+        </RadioGroup>
+
+        <View className='input-body'>
+          <Text>地址</Text>
+          <Input className='input' type='text' placeholder='请输入你的收货地址' focus />
+        </View>
+
       </View>
 
       <View className='wrapper'>
@@ -65,7 +89,15 @@ function Form() {
           提交并支付
         </Button>
       </View>
+
+      <TaroForm onSubmit={e=>console.log(e)} onReset={e=>console.log(e)} >
+        <View className='example-body'>
+          <Switch name='switch' className='form-switch'></Switch>
+        </View>
+      </TaroForm>
+
     </View>
+    
   )
 }
 
