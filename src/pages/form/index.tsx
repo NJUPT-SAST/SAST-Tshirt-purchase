@@ -9,11 +9,13 @@ import {
   PickerView,
   PickerViewColumn,
   Input,
+  Image,
 } from '@tarojs/components'
 import { stringify } from '@tarojs/runtime'
 import Taro from '@tarojs/taro'
 import React, { Component, useState } from 'react'
 import './index.scss'
+import arrow from '../../imgs/right-arrow.svg'
 
 class PagePicker extends React.Component {
   state = {
@@ -27,21 +29,9 @@ class PagePicker extends React.Component {
     })
   }
 
-  onTimeChange = (e) => {
-    this.setState({
-      timeSel: e.detail.value,
-    })
-  }
-  onDateChange = (e) => {
-    this.setState({
-      dateSel: e.detail.value,
-    })
-  }
-
   render() {
     return (
       <View className='page-section'>
-        <Text>请选择尺码(下面有尺码信息):</Text>
         <View>
           <Picker
             mode='selector'
@@ -49,7 +39,7 @@ class PagePicker extends React.Component {
             onChange={this.onChange}
           >
             <View className='picker'>
-              当前尺码：{this.state.selectorChecked}
+              <Text>尺码</Text><View className='picker-label'>{this.state.selectorChecked}</View><Image className='arrow' src={arrow} style='height:60rpx;width:60rpx;' />
             </View>
           </Picker>
         </View>
@@ -62,25 +52,26 @@ function Form() {
   return (
     <>
       <View className='container'>
-
+        <Text className='pageTitle'>信息登记</Text>
+        <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
         <View className='input-body'>
           <Text>学号</Text>
-          <Input type='text' placeholder='请输入你的学号' focus />
+          <Input className='input' type='text' placeholder='请输入你的学号' focus />
         </View>
 
         <View className='input-body'>
           <Text>姓名</Text>
-          <Input type='text' placeholder='请输入你的姓名' focus />
+          <Input className='input' type='text' placeholder='请输入你的姓名' focus />
         </View>
 
         <View className='input-body'>
           <PagePicker />
         </View>
-        
+
 
       </View>
 
-      
+
 
       <View className='wrapper'>
         <Button
