@@ -1,42 +1,54 @@
-.col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-}
-
-button[type=default]{
+button[type="default"] {
   margin-top: 250rpx;
   background-color: #ff5678;
   color: white;
   width: 70%;
 }
-  
 
-.container{
-  margin: 40rpx;
+.container {
+  margin: 70rpx;
   font-size: large;
-  .input-body{
-  flex-direction: column;
-  justify-content: space-around;
-  margin: 40rpx;
-    text{
+  .input-body {
+    flex-direction: column;
+    justify-content: space-around;
+    margin-top: 70rpx;
+    margin-bottom: 70rpx;
+    text {
       margin-right: 30rpx;
     }
-    input{
-      margin: 10rpx;
+    input {
+      margin: 10rpx 10rpx 10rpx 40rpx;
       height: 20rpx;
       display: inline-flex;
-      border-style: solid;
-      border-width: 2rpx;
-      border-height: 30rpx;
-      border-radius: 5rpx;
+      // border-style: solid;
+      // border-width: 2rpx;
+      // border-height: 30rpx;
+      // border-radius: 5rpx;
     }
-}
+  }
 }
 
-  
+.pageTitle {
+  font-size: 50rpx;
+  font-weight: bold;
+  display: block;
+}
+
+.pageInfo {
+  font-size: 25rpx;
+  color: rgb(138, 138, 138);
+}
+
+.picker {
+  display: flex;
+  width: 100%;
+}
+
+.picker-label {
+  margin-left: 40rpx;
+}
+
+.arrow{
+  right:0;
+  margin-left: auto;
+}

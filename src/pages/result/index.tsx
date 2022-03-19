@@ -16,6 +16,7 @@ function Result() {
         Taro.navigateTo({url:'/pages/form/index'})
       }}
       >返回修改信息</Button>
+      <Text className='info copyright'>©2022 SAST</Text>
     </View>
   );
 }

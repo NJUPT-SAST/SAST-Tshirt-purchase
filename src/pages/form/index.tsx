@@ -4,10 +4,12 @@ import {
   Button,
   Picker,
   Input,
+  Image,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
 import './index.scss'
+import arrow from '../../imgs/right-arrow.svg'
 
 function Form() {
   function randomString(length, chars) {
@@ -21,20 +23,22 @@ function Form() {
     selectorChecked: 'M'
   })
   return (
-    <View className='wrapper col'>
+    <View className='container'>
 
-      <View className='input-body row'>
+      <Text className='pageTitle'>信息登记</Text>
+      <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
+
+      <View className='input-body'>
         <Text>学号</Text>
         <Input className='input' type='text' placeholder='请输入你的学号' focus />
       </View>
 
-      <View className='input-body row'>
+      <View className='input-body'>
         <Text>姓名</Text>
         <Input className='input' type='text' placeholder='请输入你的姓名' focus />
       </View>
 
-      <View className='input-body'>
-        <Text>请选择尺码(下面有尺码信息):</Text>
+      <View className='page-section'>
         <View>
           <Picker
             mode='selector'
@@ -42,36 +46,23 @@ function Form() {
             onChange={(e) => { console.log(e) }}
           >
             <View className='picker'>
-              当前尺码：{data.selectorChecked}
+              <Text>尺码</Text><View className='picker-label'>{this.state.selectorChecked}</View><Image className='arrow' src={arrow} style='height:60rpx;width:60rpx;' />
             </View>
           </Picker>
         </View>
       </View>
 
-      <Button onClick={() => {
-        Taro.request({
-          url: "https://api.mch.weixin.qq.com/pay/unifiedorder",
-          data: {
-            "appid": "wx3d1f1303e46d91a5",
-            "mch_id": "1623194528",
-            "device_info": "WECHAT",
-            "nonce_str": nonce_str,
-
-          }
-        })
-        Taro.requestPayment({
-          timeStamp: '',
-          nonceStr: '',
-          package: '',
-          signType: 'MD5',
-          paySign: '',
-          success(res) { },
-          fail(res) { }
-        })
-        Taro.navigateTo({ url: "/pages/result/index" })
-      }} className='btn-submit' type='default'
-      >提交并支付</Button>
-
+      <View className='wrapper'>
+        <Button
+          onClick={() => {
+            Taro.navigateTo({ url: '/pages/result/index' })
+          }}
+          className='btn-submit'
+          type='default'
+        >
+          提交并支付
+        </Button>
+      </View>
     </View>
   )
 }
