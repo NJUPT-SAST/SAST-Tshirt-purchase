@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: 'Taro-hooks',
+  navigationBarTitleText: 'SAST T-Shirt 购买登记',
   enableShareAppMessage: true,
 };

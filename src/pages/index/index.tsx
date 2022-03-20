@@ -14,7 +14,7 @@ const Index = () => {
         <Button onClick={() => {
           Taro.showModal({
             title: '服务协议',
-            content: '请你务必认真阅读、充分理解“隐私政策”各条款，并在同意后点击“同意”按钮，才能进行下一步操作。',
+            content: '请你务必认真阅读、充分理解“隐私政策”各条款，并在同意后点击“确认”按钮，才能进行下一步操作。',
             success(e) {
               if (e.confirm) {
                 console.log('用户点击确定')
@@ -49,6 +49,7 @@ const Index = () => {
           })
         }} className='btn-welcome' type='default'
         >马上登记</Button>
+        
         <Text className='info underline' onClick={() => {
           Taro.showActionSheet({
             itemList: ['A', 'B', 'C'],

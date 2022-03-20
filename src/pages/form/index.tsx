@@ -11,13 +11,22 @@ import {
   RadioGroup,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './index.scss'
 import arrow from '../../imgs/right-arrow.svg'
 
 
 
 function Form() {
+  useEffect(()=>{
+    Taro.getUserProfile({
+      desc:'用于获取订单信息',
+      success:(res) =>{
+        setWxData({userInfo:res.userInfo,hasUserInfo:true})
+      }
+    })
+  });
+
   function AddressInput(props) {
     if (data.requireMail) {
       return (
@@ -29,6 +38,10 @@ function Form() {
     }
     else return null
   }
+  const [wxData,setWxData] = useState({
+    userInfo: {},
+    hasUserInfo: false
+  })
 
   const [data, setData] = useState({
     studentId: '',
@@ -59,7 +72,7 @@ function Form() {
 
       <View className='input-body'>
         <Text>姓名</Text>
-        <Input className='input' type='text' placeholder='请输入你的姓名' focus />
+        <Input className='input' type='text' placeholder='请输入你的姓名' />
       </View>
 
       <View className='page-section'>
