@@ -3,12 +3,15 @@ import Taro from '@tarojs/taro';
 import React, { useEffect, useState } from 'react';
 import resultImg from '../../imgs/result.png'
 import express from '../../imgs/onrail.png'
+import error from '../../imgs/error.png'
 import './index.sass'
 
 function Imgs(cases) {
   switch (cases) {
     case 'order': return resultImg;
     case 'express': return express;
+    case 'error': return error;
+    default: return resultImg;
   }
 }
 
@@ -18,6 +21,7 @@ function notice(cases) {
     case 'order': return '支付成功，登记已提交';
     case 'express': return '你的 T-Shirt 已经在路上啦';
     case 'error': return '出现了一些错误，请联系管理员';
+    default : return '支付成功，登记已提交';
   }
 }
 
@@ -47,7 +51,7 @@ function Result(props) {
       <Button type='default' className='back' onClick={() => {
         Taro.navigateTo({ url: '/pages/form/index' })
       }}
-      >返回修改信息</Button>
+      >{cases==='error'?'返回重新提交订单':'返回修改信息'}</Button>
       <Text className='info copyright'>©2022 SAST</Text>
     </View>
   );
