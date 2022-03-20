@@ -1,5 +1,7 @@
 button[type="default"] {
-  margin-top: 250rpx;
+  position: relative;
+  bottom: 0;
+  margin: 100rpx 0;
   background-color: #ff5678;
   color: white;
   width: 70%;
@@ -13,17 +15,22 @@ text {
   margin: 70rpx;
   font-size: large;
   .input-body {
-    flex-direction: column;
-    justify-content: space-around;
-    margin: 70rpx 0;
-    input {
+    // display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    // align-items: center;
+    // align-content: center;
+    // align-self: center;
+    margin: 60rpx 0;
+    .input {
+      width: 70%;
       margin: 10rpx 10rpx 10rpx 40rpx;
       height: 20rpx;
+    }
+    .textarea {
       display: inline-flex;
-      // border-style: solid;
-      // border-width: 2rpx;
-      // border-height: 30rpx;
-      // border-radius: 5rpx;
+      width: 70%;
+      height: 48rpx;
     }
   }
 }
@@ -57,4 +64,47 @@ text {
 
 .radio-list-label {
   margin-right: 1rem;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.total-price {
+  color: rgb(138, 138, 138);
+}
+
+#price-text-right-align {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.price-text-row {
+  font-size: medium;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#total-price-text {
+  font-size: x-large;
+  color: #ff5678;
+}
+
+.price-detail-title {
+  font-size: large;
+  color: #000;
+}
+
+.total-price-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.price-detail-margin {
+  margin: 20rpx 0;
 }

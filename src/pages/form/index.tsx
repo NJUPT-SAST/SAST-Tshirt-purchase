@@ -1,14 +1,13 @@
-/* eslint-disable react/jsx-no-comment-textnodes */
 import {
   View,
   Text,
   Button,
   Picker,
-  Input,
   Image,
   Label,
   Radio,
   RadioGroup,
+  Textarea,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useEffect, useState } from 'react'
@@ -18,27 +17,41 @@ import arrow from '../../imgs/right-arrow.svg'
 
 
 function Form() {
-  useEffect(()=>{
-    Taro.getUserProfile({
-      desc:'用于获取订单信息',
-      success:(res) =>{
-        setWxData({userInfo:res.userInfo,hasUserInfo:true})
-      }
-    })
-  });
+  let shirt_price = 1;
+  let mail_fee = 1;
+  Taro.cloud.init({
+    env: 'cloud1-8g1hkg947e4303c1'
+  })
 
-  function AddressInput(props) {
+  useEffect(() => {
+    Taro.cloud.callFunction({
+      name: 'login',
+      // 传递给云函数的event参数
+      data: {
+
+      }
+    }).then(res => {
+      console.log(res)
+      // output: res.result === 3
+    }).catch(err => {
+      console.log(err)
+      // handle error
+    })
+  }, []);
+
+  function AddressInput() {
     if (data.requireMail) {
       return (
         <View className='input-body'>
           <Text>地址</Text>
-          <Input className='input' type='text' placeholder='请输入地址' focus />
+          <Textarea className='input textarea' placeholder='请输入地址' focus />
         </View>
       )
     }
     else return null
   }
-  const [wxData,setWxData] = useState({
+
+  const [wxData, setWxData] = useState({
     userInfo: {},
     hasUserInfo: false
   })
@@ -47,12 +60,9 @@ function Form() {
     studentId: '',
     name: '',
     size: 'M',
+    count: 1,
     requireMail: false,
     mailAddress: '',
-  })
-
-  Taro.cloud.init({
-    env: 'cloud1-8g1hkg947e4303c1'
   })
 
   const db = Taro.cloud.database()
@@ -67,15 +77,15 @@ function Form() {
 
       <View className='input-body'>
         <Text>学号</Text>
-        <Input className='input' type='text' placeholder='请输入你的学号' focus />
+        <Textarea className='input textarea' placeholder='请输入你的学号' focus />
       </View>
 
       <View className='input-body'>
         <Text>姓名</Text>
-        <Input className='input' type='text' placeholder='请输入你的姓名' />
+        <Textarea className='input textarea' placeholder='请输入你的姓名' />
       </View>
 
-      <View className='page-section'>
+      <View className='input-body'>
         <Picker
           mode='selector'
           value={3}
@@ -89,8 +99,22 @@ function Form() {
         </Picker>
       </View>
 
-      <View>
-        <RadioGroup className='input-body' onChange={(e) => { e.detail.value === 'yep' ? setData((prev) => { return { ...prev, requireMail: true } }) : setData((prev) => { return { ...prev, requireMail: false } }) }}>
+      <View className='input-body'>
+        <Picker
+          mode='selector'
+          value={0}
+          range={[1, 2, 3, 4, 5]}
+          onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
+        >
+          <View className='picker'>
+            <Text className='text'>数量</Text>
+            <View className='picker-label'>{data.count}</View><Image className='arrow' src={arrow} />
+          </View>
+        </Picker>
+      </View>
+
+      <View className='input-body'>
+        <RadioGroup onChange={(e) => { e.detail.value === 'yep' ? setData((prev) => { return { ...prev, requireMail: true } }) : setData((prev) => { return { ...prev, requireMail: false } }) }}>
           <Text className='text'>是否需要邮寄</Text>
           <Label className='radio-list-label'>
             <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={data.requireMail}>是</Radio>
@@ -99,8 +123,29 @@ function Form() {
             <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!data.requireMail}>否</Radio>
           </Label>
         </RadioGroup>
-        <AddressInput />
       </View>
+
+      <View className='input-body'><AddressInput /></View>
+
+      <View className='total-price'>
+        <View className='price-text-row price-detail-margin price-detail-title'>
+          <Text>支付明细</Text>
+        </View>
+        <View id='price-text-right-align price-detail-margin'>
+          <View className='price-text-row'>
+            <Text>商品总额</Text>
+            <Text className='price'>￥{data.count * shirt_price / 100}</Text>
+          </View>
+          <View className='price-text-row price-detail-margin'>
+            <Text>运费</Text>
+            <Text className='price'>￥{(data.requireMail) ? mail_fee / 100 : 0}</Text>
+          </View>
+        </View>
+        <View className='total-price-row price-detail-margin'>
+          <Text id='total-price-text'>￥{data.count * shirt_price / 100 + ((data.requireMail) ? mail_fee / 100 : 0)}</Text>
+        </View>
+      </View>
+
 
       <View className='wrapper'>
         <Button
@@ -126,6 +171,7 @@ function Form() {
                       icon: 'success',
                       duration: 2000
                     })
+                    // shirtCollection.
                     // shirtCollection.add({
                     //   data: {
                     //     description: "learn cloud database",
@@ -135,7 +181,7 @@ function Form() {
                     //     done: false
                     //   }
                     // })
-                    Taro.navigateTo({ url: `/pages/result/index?express=${data.requireMail?'express':'order'}` })
+                    Taro.navigateTo({ url: `/pages/result/index?express=${data.requireMail ? 'express' : 'order'}` })
                     /* 成功回调 */
                   },
                   fail(e) {

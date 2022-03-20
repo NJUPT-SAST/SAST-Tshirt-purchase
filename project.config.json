@@ -54,5 +54,6 @@
     "tabIndent": "insertSpaces",
     "tabSize": 4
   },
-  "condition": {}
+  "condition": {},
+  "cloudfunctionRoot": "cloudfunctions/"
 }
