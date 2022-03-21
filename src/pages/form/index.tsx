@@ -10,11 +10,9 @@ import {
   Textarea,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './index.scss'
 import arrow from '../../imgs/right-arrow.svg'
-
-
 
 function Form() {
   let shirt_price = 1;
@@ -22,6 +20,15 @@ function Form() {
   Taro.cloud.init({
     env: 'cloud1-8g1hkg947e4303c1'
   })
+
+  const textHeight = useRef();
+
+  useEffect(() => {
+    let height: any = textHeight.current;
+    console.log(textHeight);
+    console.log(height.clientHeight);
+  }, []);
+
 
   useEffect(() => {
     Taro.cloud.callFunction({
@@ -43,7 +50,7 @@ function Form() {
     if (data.requireMail) {
       return (
         <View className='input-body'>
-          <Text>地址</Text>
+          <Text className='uncommon-text'>地址</Text>
           <Textarea className='input textarea' placeholder='请输入地址' focus />
         </View>
       )
@@ -75,13 +82,13 @@ function Form() {
       <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
 
 
-      <View className='input-body'>
-        <Text>学号</Text>
+      <View className='input-body' ref={textHeight}>
+        <Text className='uncommon-text'>学号</Text>
         <Textarea className='input textarea' placeholder='请输入你的学号' focus />
       </View>
 
       <View className='input-body'>
-        <Text>姓名</Text>
+        <Text className='uncommon-text'>姓名</Text>
         <Textarea className='input textarea' placeholder='请输入你的姓名' />
       </View>
 
@@ -92,9 +99,10 @@ function Form() {
           range={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
           onChange={(e) => { setData(prev => { return { ...prev, size: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'][e.detail.value] } }) }}
         >
-          <View className='picker'>
+          <View className='picker common-selector'>
             <Text className='text'>尺码</Text>
-            <View className='picker-label'>{data.size}</View><Image className='arrow' src={arrow} />
+            <View className='picker-label'>{data.size}</View>
+            <Image className='arrow' src={arrow} />
           </View>
         </Picker>
       </View>
@@ -106,26 +114,29 @@ function Form() {
           range={[1, 2, 3, 4, 5]}
           onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
         >
-          <View className='picker'>
+          <View className='picker common-selector'>
             <Text className='text'>数量</Text>
-            <View className='picker-label'>{data.count}</View><Image className='arrow' src={arrow} />
+            <View className='picker-label'>{data.count}</View>
+            <Image className='arrow' src={arrow} />
           </View>
         </Picker>
       </View>
 
       <View className='input-body'>
-        <RadioGroup onChange={(e) => { e.detail.value === 'yep' ? setData((prev) => { return { ...prev, requireMail: true } }) : setData((prev) => { return { ...prev, requireMail: false } }) }}>
+        <View className='common-selector'>
           <Text className='text'>是否需要邮寄</Text>
-          <Label className='radio-list-label'>
-            <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={data.requireMail}>是</Radio>
-          </Label>
-          <Label className='radio-list-label'>
-            <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!data.requireMail}>否</Radio>
-          </Label>
-        </RadioGroup>
+          <RadioGroup onChange={(e) => { e.detail.value === 'yep' ? setData((prev) => { return { ...prev, requireMail: true } }) : setData((prev) => { return { ...prev, requireMail: false } }) }}>
+            <Label className='radio-list-label'>
+              <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={data.requireMail}>是</Radio>
+            </Label>
+            <Label className='radio-list-label'>
+              <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!data.requireMail}>否</Radio>
+            </Label>
+          </RadioGroup>
+        </View>
       </View>
 
-      <View className='input-body'><AddressInput /></View>
+      <AddressInput />
 
       <View className='total-price'>
         <View className='price-text-row price-detail-margin price-detail-title'>
