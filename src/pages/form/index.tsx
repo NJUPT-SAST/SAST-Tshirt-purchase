@@ -149,29 +149,30 @@ function Form() {
     }
   }
 
-  function Price(){
-    if(!purchased){
-      return(
+  function Price() {
+    if (!purchased) {
+      return (
         <View className='total-price'>
-        <View className='price-text-row price-detail-margin price-detail-title'>
-          <Text>支付明细</Text>
-        </View>
-        <View id='price-text-right-align price-detail-margin'>
-          <View className='price-text-row'>
-            <Text>商品总额</Text>
-            <Text className='price'>￥{data.count * shirt_price / 100}</Text>
+          <View className='price-text-row price-detail-margin price-detail-title'>
+            <Text>支付明细</Text>
           </View>
-          <View className='price-text-row price-detail-margin'>
-            <Text>运费</Text>
-            <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text>
+          <View id='price-text-right-align price-detail-margin'>
+            <View className='price-text-row'>
+              <Text>商品总额</Text>
+              <Text className='price'>￥{data.count * shirt_price / 100}</Text>
+            </View>
+            <View className='price-text-row price-detail-margin'>
+              <Text>运费</Text>
+              <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text>
+            </View>
+          </View>
+          <View className='total-price-row price-detail-margin'>
+            <Text id='total-price-text'>￥{(data.count * shirt_price + ((requireMail) ? mail_fee : 0)) / 100}</Text>
           </View>
         </View>
-        <View className='total-price-row price-detail-margin'>
-          <Text id='total-price-text'>￥{(data.count * shirt_price + ((requireMail) ? mail_fee : 0)) / 100}</Text>
-        </View>
-      </View>
       )
     }
+    else return null
   }
 
   function AddressInput() {
@@ -314,7 +315,7 @@ function Form() {
       </View>
 
       <AddressInput />
-      
+
       <Price />
 
       {/* 提交按钮 */}
@@ -424,7 +425,7 @@ function Form() {
           className='btn-submit'
           type='default'
         >
-          {(purchased)?'保存订单修改':'提交并支付'}
+          {(purchased) ? '保存订单修改' : '提交并支付'}
         </Button>
       </View>
     </View>
