@@ -8,6 +8,7 @@ import {
   Radio,
   RadioGroup,
   Input,
+  Icon,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useEffect, useRef, useState } from 'react'
@@ -33,6 +34,7 @@ function Form() {
 
   const [loading, setLoading] = useState(false)
   const [purchased, setPurchased] = useState(false)
+  const [dataExist, setDataExist] = useState(false)
 
   let openid: string = '';
   let shirt_price = 1;
@@ -79,6 +81,7 @@ function Form() {
             else if (orderData.data.length === 1) {
               console.log(orderData.data[0])
               setPurchased(true)
+              setDataExist(true)
               setRequireMail(orderData.data[0].requireMail);
               setPurchased(orderData.data[0].paid)
               setData((prev) => {
@@ -376,21 +379,25 @@ function Form() {
                           console.log(respond)
                           let result: any = respond.result;
                           const payment = result.payment;
-                          let { _id } = await shirtCollection.add({
-                            data: {
-                              studentId: data.studentId,
-                              name: data.name,
-                              size: data.size,
-                              phone: data.phone,
-                              count: data.count,
-                              requireMail: requireMail,
-                              mailAddress: data.mailAddress,
-                              orderInfo: payment,
-                              paid: false,
-                              realPayPrice: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
-                            }
-                          })
-                          console.log(_id);
+                          let id ;
+                          if(!dataExist){
+                            let { _id } = await shirtCollection.add({
+                              data: {
+                                studentId: data.studentId,
+                                name: data.name,
+                                size: data.size,
+                                phone: data.phone,
+                                count: data.count,
+                                requireMail: requireMail,
+                                mailAddress: data.mailAddress,
+                                orderInfo: payment,
+                                paid: false,
+                                realPayPrice: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
+                              }
+                            })
+                            console.log(_id);
+                            id = _id
+                          }
                           // 调起微信客户端支付
                           Taro.requestPayment({
                             ...payment,
@@ -401,7 +408,7 @@ function Form() {
                                 icon: 'success',
                                 duration: 2000
                               })
-                              shirtCollection.doc(_id).update(
+                              shirtCollection.doc(id).update(
                                 {
                                   data: {
                                     'paid': true
@@ -424,8 +431,18 @@ function Form() {
                             },
                             fail(e) {
                               console.log(e)
-                              Taro.redirectTo({ url: `/pages/result/index?express=error` })
-                              Taro.hideLoading();
+                              if(e.errMsg==='requestPayment:fail cancel'){
+                                Taro.hideLoading();
+                                Taro.showToast({
+                                  title:'支付取消',
+                                  icon:'error',
+                                  duration: 2000,
+                                })
+                              }
+                              else{
+                                Taro.redirectTo({ url: `/pages/result/index?express=error` })
+                                Taro.hideLoading();
+                              }
                               /* 失败回调 */
                             }
                           });
