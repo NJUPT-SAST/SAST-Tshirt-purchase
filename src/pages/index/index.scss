@@ -36,20 +36,27 @@ button[type="default"].btn-welcome {
 
 .info {
   text-align: center;
-  margin-top: 20rpx;
-  font-size: 27rpx;
 }
 
 .underline {
   text-decoration: underline;
 }
 
-.private {
-  padding-top: 20rpx;
-}
-
 .copyright {
   margin-top: 100rpx;
   margin-bottom: 40rpx;
   color: rgb(138, 138, 138);
+}
+
+.accept {
+  transform: scale(0.6,0.6);
+}
+
+.privacy {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20rpx;
+  font-size: small;
 }
