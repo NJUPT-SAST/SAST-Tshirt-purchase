@@ -19,11 +19,11 @@ function Imgs(cases) {
 //给用户展示的提示信息
 function notice(cases) {
   switch (cases) {
-    case 'order': return '支付成功，登记已提交';
+    case 'order': return '支付成功\n登记已提交!';
     case 'express': return '你的 T-Shirt 已经在路上啦';
-    case 'error': return '出现了一些错误，请联系开发者';
-    case 'update': return '订单信息更新成功';
-    default: return '支付成功，登记已提交';
+    case 'error': return '出现了一些错误\n请联系开发者!';
+    case 'update': return '订单信息更新成功!';
+    default: return '支付成功\n登记已提交!';
   }
 }
 
@@ -35,11 +35,6 @@ function Result(props) {
   function HandleUrl(url) {
     return url.split('&')[0].slice(27)
   }
-  // Taro.showToast({
-  //   title: `props.express: ${HandleUrl(props.tid)}`,
-  //   icon: 'success',
-  //   duration: 2000
-  // })
   console.log(props.tid)
 
   const [cases, setCases] = useState('express');
