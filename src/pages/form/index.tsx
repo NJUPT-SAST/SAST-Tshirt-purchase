@@ -15,31 +15,39 @@ import './index.scss'
 import arrow from '../../imgs/right-arrow.svg'
 
 function Form() {
+  Taro.cloud.init({
+    env: 'cloud1-8g1hkg947e4303c1'
+  })
+  const db = Taro.cloud.database()
+  const shirtCollection = db.collection('shirt')
+
   const [data, setData] = useState({
     openid: '',
     studentId: '',
     name: '',
-    phone: 114514,
+    phone: '',
     size: 'M',
     count: 1,
     mailAddress: '',
   })
 
+  const [loading, setLoading] = useState(false)
+  const [purchased, setPurchased] = useState(false)
+
+  let openid: string = '';
   let shirt_price = 1;
   let mail_fee = 1;
-  Taro.cloud.init({
-    env: 'cloud1-8g1hkg947e4303c1'
-  })
 
   const textHeight = useRef();
 
-  useEffect(() => {
-    let height: any = textHeight.current;
-    console.log(textHeight);
-    console.log(height.clientHeight);
-  }, []);
+  // useEffect(() => {
+  //   let height: any = textHeight.current;
+  //   console.log(textHeight);
+  //   console.log(height.clientHeight);
+  // }, []);
 
   useEffect(() => {
+    Taro.showLoading({ title: '加载中' })
     Taro.cloud.callFunction({
       name: 'login',
       // 传递给云函数的event参数
@@ -49,7 +57,8 @@ function Form() {
     }).then(res => {
       const getOpenid = new Promise(resolve => {
         let result: any = res.result;
-        let openid: string = result.openid;
+        openid = result.openid;
+        console.log(res);
         console.log(result, openid);
         setData((prev) => {
           return ({
@@ -59,14 +68,111 @@ function Form() {
         })
         resolve(openid);
       })
-      getOpenid.then((openid: string) => {
-        console.log(data.openid)
+      getOpenid.then((saveOpenid: string) => {
+        shirtCollection.where({
+          _openid: saveOpenid,
+        })
+          .get()
+          .then((orderData: any) => {
+            console.log(orderData);
+            if (orderData.data.length === 1) {
+              console.log(orderData.data[0])
+              setPurchased(true)
+              setRequireMail(orderData.data[0].requireMail);
+              setPurchased(orderData.data[0].paid)
+              setData((prev) => {
+                return ({
+                  ...prev,
+                  studentId: orderData.data[0].studentId,
+                  name: orderData.data[0].name,
+                  phone: orderData.data[0].phone,
+                  size: orderData.data[0].size,
+                  count: orderData.data[0].count,
+                  mailAddress: orderData.data[0].mailAddress
+                })
+              });
+              Taro.hideLoading();
+            }
+            else {
+              console.log("Woops! Something went wrong, there is no purchase history!");
+              Taro.hideLoading();
+            }
+          })
+          .catch((err) => {
+            console.log("error", err);
+          })
       })
     }).catch(err => {
       console.log(err)
       // handle error
     })
   }, []);
+
+  function AmountSelect() {
+    if (purchased) {
+      return (
+        <View className='selector-body'>
+          <Picker
+            mode='selector'
+            value={0}
+            range={[1, 2, 3, 4, 5]}
+            onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
+            disabled={purchased}
+          >
+            <View className='picker common-selector'>
+              <Text className='text-disable'>数量</Text>
+              <View className='picker-label text-disable'>{data.count}</View>
+              <Image className='arrow' src={arrow} />
+            </View>
+          </Picker>
+        </View>
+      )
+    }
+    else {
+      return (
+        <View className='selector-body'>
+          <Picker
+            mode='selector'
+            value={0}
+            range={[1, 2, 3, 4, 5]}
+            onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
+            disabled={purchased}
+          >
+            <View className='picker common-selector'>
+              <Text className='text'>数量</Text>
+              <View className='picker-label'>{data.count}</View>
+              <Image className='arrow' src={arrow} />
+            </View>
+          </Picker>
+        </View>
+      )
+    }
+  }
+
+  function Price(){
+    if(!purchased){
+      return(
+        <View className='total-price'>
+        <View className='price-text-row price-detail-margin price-detail-title'>
+          <Text>支付明细</Text>
+        </View>
+        <View id='price-text-right-align price-detail-margin'>
+          <View className='price-text-row'>
+            <Text>商品总额</Text>
+            <Text className='price'>￥{data.count * shirt_price / 100}</Text>
+          </View>
+          <View className='price-text-row price-detail-margin'>
+            <Text>运费</Text>
+            <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text>
+          </View>
+        </View>
+        <View className='total-price-row price-detail-margin'>
+          <Text id='total-price-text'>￥{(data.count * shirt_price + ((requireMail) ? mail_fee : 0)) / 100}</Text>
+        </View>
+      </View>
+      )
+    }
+  }
 
   function AddressInput() {
     if (requireMail) {
@@ -94,13 +200,10 @@ function Form() {
 
   const [requireMail, setRequireMail] = useState(false);
 
-  const db = Taro.cloud.database()
-  const shirtCollection = db.collection('shirt')
-
   return (
     <View className='container'>
 
-      <Text className='pageTitle'>信息登记</Text>
+      <Text className='pageTitle'>{(purchased) ? '信息修改' : '信息登记'}</Text>
       <Text className='pageInfo'>请填写个人信息并支付费用预订SAST T-Shirt</Text>
 
 
@@ -141,20 +244,20 @@ function Form() {
       </View>
 
       <View className='input-body'>
-        <Text className='uncommon-text'>手机号</Text>
+        <Text className='uncommon-text'>电话</Text>
         <Input
           className='input textarea'
-          placeholder='请输入你的手机号'
+          placeholder='请输入你的电话号码'
           confirm-type='done'
-          value={data.phone.toString()}
+          value={data.phone}
           type='number'
           onBlur={(value) => {
             console.log(value);
-            setData((prev) => { return ({ ...prev, phone: Number(value.detail.value) }) });
+            setData((prev) => { return ({ ...prev, phone: value.detail.value }) });
           }}
           onConfirm={(value) => {
             console.log(value);
-            setData((prev) => { return ({ ...prev, phone: Number(value.detail.value) }) });
+            setData((prev) => { return ({ ...prev, phone: value.detail.value }) });
           }}
         />
       </View>
@@ -174,12 +277,13 @@ function Form() {
         </Picker>
       </View>
 
-      <View className='selector-body'>
+      {/* <View className='selector-body'>
         <Picker
           mode='selector'
           value={0}
           range={[1, 2, 3, 4, 5]}
           onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
+          disabled={purchased}
         >
           <View className='picker common-selector'>
             <Text className='text'>数量</Text>
@@ -187,7 +291,8 @@ function Form() {
             <Image className='arrow' src={arrow} />
           </View>
         </Picker>
-      </View>
+      </View> */}
+      <AmountSelect />
 
       <View className='selector-body'>
         <View className='common-selector'>
@@ -199,41 +304,24 @@ function Form() {
             }}
           >
             <Label className='radio-list-label'>
-              <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={requireMail}>是</Radio>
+              <Radio className='radio-list-radio' value='yep' color='#ff5678' checked={requireMail} disabled={purchased}>是</Radio>
             </Label>
             <Label className='radio-list-label'>
-              <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!requireMail}>否</Radio>
+              <Radio className='radio-list-radio' value='nope' color='#ff5678' checked={!requireMail} disabled={purchased}>否</Radio>
             </Label>
           </RadioGroup>
         </View>
       </View>
 
       <AddressInput />
-
-      <View className='total-price'>
-        <View className='price-text-row price-detail-margin price-detail-title'>
-          <Text>支付明细</Text>
-        </View>
-        <View id='price-text-right-align price-detail-margin'>
-          <View className='price-text-row'>
-            <Text>商品总额</Text>
-            <Text className='price'>￥{data.count * shirt_price / 100}</Text>
-          </View>
-          <View className='price-text-row price-detail-margin'>
-            <Text>运费</Text>
-            <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text>
-          </View>
-        </View>
-        <View className='total-price-row price-detail-margin'>
-          <Text id='total-price-text'>￥{(data.count * shirt_price + ((requireMail) ? mail_fee : 0)) / 100}</Text>
-        </View>
-      </View>
+      
+      <Price />
 
       {/* 提交按钮 */}
       <View className='wrapper'>
         <Button
           onClick={() => {
-            if (data.studentId == '' || data.name == '' || data.count == 0 || (requireMail && data.mailAddress == '')) {
+            if (data.studentId == '' || data.name == '' || data.phone == '' || data.count == 0 || (requireMail && data.mailAddress == '')) {
               Taro.showToast({
                 title: '请完整填写表单！',
                 icon: 'error',
@@ -243,85 +331,102 @@ function Form() {
             else {
               Taro.showModal({
                 title: '请确认您的信息',
-                content: `姓名：${data.name}\n学号：${data.studentId}\n尺码：${data.size}\n数量：${data.count}\n收电话：${data.phone}是否需要邮寄：${requireMail?`是\n收件人： ${data.mailAddress}\n收件地址： ${data.mailAddress}\n`:'否'}`,
+                content: `姓名：${data.name}\n学号：${data.studentId}\n尺码：${data.size}\n数量：${data.count}\n手机号：${data.phone}\n是否需要邮寄：${requireMail ? `是\n收件地址： ${data.mailAddress}\n` : '否'}`,
                 success: function (res) {
                   if (res.confirm) {
-                    Taro.cloud.callFunction({
-                      name: "makeOrder",
-                      data: {
-                        price: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
-                        /* 开发者自定义参数 */
-                      },
-                      success: async (respond) => {
-                        // 取得云函数返回的订单信息
-                        console.log(respond)
-                        let result: any = respond.result;
-                        const payment = result.payment;
-                        let { _id } = await shirtCollection.add({
-                          data: {
-                            studentId: data.studentId,
-                            name: data.name,
-                            size: data.size,
-                            count: data.count,
-                            requireMail: requireMail,
-                            mailAddress: data.mailAddress,
-                            orderInfo: payment,
-                            paid: false,
-                          }
-                        })
-                        console.log(_id);
-                        // 调起微信客户端支付
-                        Taro.requestPayment({
-                          ...payment,
-                          success(e) {
-                            console.log(e)
-                            Taro.showToast({
-                              title: '支付成功！',
-                              icon: 'success',
-                              duration: 2000
-                            })
-                            shirtCollection.doc(_id).update(
-                              {
-                                data: {
-                                  'paid': true
+                    if (purchased) {
+                      db.collection('shirt').doc(data.openid).update({
+                        data: {
+                          studentId: data.studentId,
+                          name: data.name,
+                          size: data.size,
+                          phone: data.phone,
+                          mailAddress: data.mailAddress,
+                        },
+                        success: function () {
+                          Taro.navigateTo({ url: `/pages/result/index?express=update` })
+                        },
+                      })
+                    }
+                    else {
+                      Taro.cloud.callFunction({
+                        name: "makeOrder",
+                        data: {
+                          price: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
+                          /* 开发者自定义参数 */
+                        },
+                        success: async (respond) => {
+                          // 取得云函数返回的订单信息
+                          console.log(respond)
+                          let result: any = respond.result;
+                          const payment = result.payment;
+                          let { _id } = await shirtCollection.add({
+                            data: {
+                              studentId: data.studentId,
+                              name: data.name,
+                              size: data.size,
+                              phone: data.phone,
+                              count: data.count,
+                              requireMail: requireMail,
+                              mailAddress: data.mailAddress,
+                              orderInfo: payment,
+                              paid: false,
+                            }
+                          })
+                          console.log(_id);
+                          // 调起微信客户端支付
+                          Taro.requestPayment({
+                            ...payment,
+                            success(e) {
+                              console.log(e)
+                              Taro.showToast({
+                                title: '支付成功！',
+                                icon: 'success',
+                                duration: 2000
+                              })
+                              shirtCollection.doc(_id).update(
+                                {
+                                  data: {
+                                    'paid': true
+                                  }
                                 }
-                              }
-                            )
-                            // shirtCollection.
-                            // shirtCollection.add({
-                            //   data: {
-                            //     description: "learn cloud database",
-                            //     due: new Date("2018-09-01"),
-                            //     requireMail: requireMail,
-                            //     mailAddress: data.mailAddress === '' ? null : data.mailAddress,
-                            //     done: false
-                            //   }
-                            // })
-                            Taro.navigateTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
-                            /* 成功回调 */
-                          },
-                          fail(e) {
-                            console.log(e)
-                            /* 失败回调 */
-                          }
-                        });
-                      }
-                    });
+                              )
+                              // shirtCollection.
+                              // shirtCollection.add({
+                              //   data: {
+                              //     description: "learn cloud database",
+                              //     due: new Date("2018-09-01"),
+                              //     requireMail: requireMail,
+                              //     mailAddress: data.mailAddress === '' ? null : data.mailAddress,
+                              //     done: false
+                              //   }
+                              // })
+                              Taro.navigateTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
+                              /* 成功回调 */
+                            },
+                            fail(e) {
+                              console.log(e)
+                              Taro.navigateTo({ url: `/pages/result/index?express=error` })
+                              /* 失败回调 */
+                            }
+                          });
+                        }
+                      });
+                    }
                   } else if (res.cancel) {
                     console.log('用户点击取消')
                   }
                 }
               })
-              console.log(data);
             }
+            console.log(data);
           }}
           className='btn-submit'
           type='default'
         >
-          提交并支付
+          {(purchased)?'保存订单修改':'提交并支付'}
         </Button>
       </View>
-      <Button onClick={() => { console.log(data.openid); }}>114514</Button>
     </View>
   )
 }

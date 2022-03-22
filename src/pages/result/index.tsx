@@ -11,6 +11,7 @@ function Imgs(cases) {
     case 'order': return resultImg;
     case 'express': return express;
     case 'error': return error;
+    case 'update': return error;
     default: return resultImg;
   }
 }
@@ -21,6 +22,7 @@ function notice(cases) {
     case 'order': return '支付成功，登记已提交';
     case 'express': return '你的 T-Shirt 已经在路上啦';
     case 'error': return '出现了一些错误，请联系管理员';
+    case 'update': return '订单信息更新成功';
     default : return '支付成功，登记已提交';
   }
 }
