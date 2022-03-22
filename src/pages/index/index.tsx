@@ -18,6 +18,7 @@ const Index = () => {
             success(e) {
               if (e.confirm) {
                 console.log('用户接受隐私政策')
+                Taro.showLoading({ title: '加载中', mask: true })
                 Taro.getSetting({
                   withSubscriptions: true,
                   success: res => {
@@ -29,7 +30,8 @@ const Index = () => {
                           success: (auth_res) => {
                             console.log(auth_res);
                             setData((prev) => { return { ...prev, auth: true } });
-                            Taro.navigateTo({ url: '/pages/form/index' })
+                            Taro.redirectTo({ url: '/pages/form/index' })
+                            Taro.hideLoading();
                           }
                         })
                       }
@@ -38,7 +40,8 @@ const Index = () => {
                       Taro.login({
                         success: function (login_res) {
                           console.log(login_res);
-                          Taro.navigateTo({ url: '/pages/form/index' })
+                          Taro.redirectTo({ url: '/pages/form/index' })
+                          Taro.hideLoading();
                         }
                       })
                     }

@@ -21,9 +21,9 @@ function notice(cases) {
   switch (cases) {
     case 'order': return '支付成功，登记已提交';
     case 'express': return '你的 T-Shirt 已经在路上啦';
-    case 'error': return '出现了一些错误，请联系管理员';
+    case 'error': return '出现了一些错误，请联系开发者';
     case 'update': return '订单信息更新成功';
-    default : return '支付成功，登记已提交';
+    default: return '支付成功，登记已提交';
   }
 }
 
@@ -51,9 +51,11 @@ function Result(props) {
       ></Image>
       <Text className='title'>{notice(cases)}</Text>
       <Button type='default' className='back' onClick={() => {
-        Taro.navigateTo({ url: '/pages/form/index' })
+        Taro.showLoading({ title: '加载中', mask: true })
+        Taro.redirectTo({ url: '/pages/form/index' })
+        Taro.hideLoading();
       }}
-      >{cases==='error'?'返回重新提交订单':'返回修改信息'}</Button>
+      >{cases === 'error' ? '返回重新提交订单' : '返回修改信息'}</Button>
       <Text className='info copyright'>©2022 SAST</Text>
     </View>
   );

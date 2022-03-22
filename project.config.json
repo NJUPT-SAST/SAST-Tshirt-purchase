@@ -55,5 +55,6 @@
     "tabSize": 4
   },
   "condition": {},
-  "cloudfunctionRoot": "cloudfunctions/"
+  "cloudfunctionRoot": "cloudfunctions/",
+  "lazyCodeLoading": "requiredComponents"
 }

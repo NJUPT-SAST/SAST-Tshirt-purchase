@@ -47,7 +47,7 @@ function Form() {
   // }, []);
 
   useEffect(() => {
-    Taro.showLoading({ title: '加载中' })
+    Taro.showLoading({ title: '加载中', mask: true })
     Taro.cloud.callFunction({
       name: 'login',
       // 传递给云函数的event参数
@@ -75,7 +75,8 @@ function Form() {
           .get()
           .then((orderData: any) => {
             console.log(orderData);
-            if (orderData.data.length === 1) {
+            if (orderData.data.length === 0) { Taro.hideLoading(); }
+            else if (orderData.data.length === 1) {
               console.log(orderData.data[0])
               setPurchased(true)
               setRequireMail(orderData.data[0].requireMail);
@@ -93,8 +94,14 @@ function Form() {
               });
               Taro.hideLoading();
             }
+            else if (orderData.data.length > 1) {
+              console.log("Oops! Something went wrong, there is not only one purchase history!");
+              Taro.redirectTo({ url: '/pages/result/index?express=error' });
+              Taro.hideLoading();
+            }
             else {
-              console.log("Woops! Something went wrong, there is no purchase history!");
+              console.log("Oops! Unknown error!");
+              Taro.redirectTo({ url: '/pages/result/index?express=error' });
               Taro.hideLoading();
             }
           })
@@ -335,18 +342,26 @@ function Form() {
                 content: `姓名：${data.name}\n学号：${data.studentId}\n尺码：${data.size}\n数量：${data.count}\n手机号：${data.phone}\n是否需要邮寄：${requireMail ? `是\n收件地址： ${data.mailAddress}\n` : '否'}`,
                 success: function (res) {
                   if (res.confirm) {
+                    Taro.showLoading({ title: '加载中', mask: true })
                     if (purchased) {
-                      db.collection('shirt').doc(data.openid).update({
-                        data: {
-                          studentId: data.studentId,
-                          name: data.name,
-                          size: data.size,
-                          phone: data.phone,
-                          mailAddress: data.mailAddress,
-                        },
-                        success: function () {
-                          Taro.navigateTo({ url: `/pages/result/index?express=update` })
-                        },
+                      db.collection("shirt").where({
+                        _openid: data.openid,
+                      }).get().then((e) => {
+                        console.log(e)
+                        let id: any = e.data[0]._id;
+                        db.collection('shirt').doc(id).update({
+                          data: {
+                            studentId: data.studentId,
+                            name: data.name,
+                            size: data.size,
+                            phone: data.phone,
+                            mailAddress: data.mailAddress,
+                          },
+                          success: function () {
+                            Taro.redirectTo({ url: `/pages/result/index?express=update` })
+                            Taro.hideLoading();
+                          },
+                        })
                       })
                     }
                     else {
@@ -372,6 +387,7 @@ function Form() {
                               mailAddress: data.mailAddress,
                               orderInfo: payment,
                               paid: false,
+                              realPayPrice: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
                             }
                           })
                           console.log(_id);
@@ -402,12 +418,14 @@ function Form() {
                               //     done: false
                               //   }
                               // })
-                              Taro.navigateTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
+                              Taro.redirectTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
+                              Taro.hideLoading();
                               /* 成功回调 */
                             },
                             fail(e) {
                               console.log(e)
-                              Taro.navigateTo({ url: `/pages/result/index?express=error` })
+                              Taro.redirectTo({ url: `/pages/result/index?express=error` })
+                              Taro.hideLoading();
                               /* 失败回调 */
                             }
                           });
