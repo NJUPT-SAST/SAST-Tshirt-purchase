@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
-import { View, Text, Button, Image, Checkbox } from "@tarojs/components";
+import { View, Text, Button, Image, Checkbox, CheckboxGroup } from "@tarojs/components";
 import welcomeImg from "../../imgs/welcome.png"
 import './index.scss'
 
@@ -109,14 +109,20 @@ const Index = () => {
         >马上登记</Button>
 
         <View className='privacy'>
-          <Checkbox className='accept' color='#ff5678' value='同意' checked={acceptPrivate} onChange={() => {
-            setAcceptPrivate((prev) => { return (!prev) });
-            Taro.setStorage({
-              key: 'acceptPrivate',
-              data: true
-            })
+          <CheckboxGroup onChange={(e) => {
+            console.log(e);
+            setAcceptPrivate((prev) => {
+              Taro.setStorage({
+                key: 'acceptPrivate',
+                data: !prev
+              });
+              return (!prev)
+            });
+            console.log(acceptPrivate);
           }}
-          />
+          >
+            <Checkbox className='accept' color='#ff5678' value='同意' checked={acceptPrivate} />
+          </CheckboxGroup>
           <Text className='info'>我已阅读并同意</Text>
           <Text className='info underline private' onClick={() => {
             Taro.showModal({

@@ -8,7 +8,6 @@ import {
   Radio,
   RadioGroup,
   Input,
-  Icon,
 } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import React, { useEffect, useRef, useState } from 'react'
@@ -19,8 +18,8 @@ function Form() {
   Taro.cloud.init({
     env: 'cloud1-8g1hkg947e4303c1'
   })
+
   const db = Taro.cloud.database()
-  const shirtCollection = db.collection('shirt')
 
   const [data, setData] = useState({
     openid: '',
@@ -32,21 +31,15 @@ function Form() {
     mailAddress: '',
   })
 
-  const [loading, setLoading] = useState(false)
-  const [purchased, setPurchased] = useState(false)
-  const [dataExist, setDataExist] = useState(false)
+  /* purchased 为是否已经下单 */
+  /* 全支付流程为先下单，后支付。下单时 paid 为 false,支付后覆盖写表为 true */
+  const [purchased, setPurchased] = useState(false);
+  const [paid, setPaid] = useState(false);
 
-  let openid: string = '';
   let shirt_price = 1;
   let mail_fee = 1;
 
   const textHeight = useRef();
-
-  // useEffect(() => {
-  //   let height: any = textHeight.current;
-  //   console.log(textHeight);
-  //   console.log(height.clientHeight);
-  // }, []);
 
   useEffect(() => {
     Taro.showLoading({ title: '加载中', mask: true })
@@ -59,19 +52,18 @@ function Form() {
     }).then(res => {
       const getOpenid = new Promise(resolve => {
         let result: any = res.result;
-        openid = result.openid;
         console.log(res);
-        console.log(result, openid);
+        console.log(result, result.openid);
         setData((prev) => {
           return ({
             ...prev,
-            openid: openid,
+            openid: result.openid,
           })
         })
-        resolve(openid);
+        resolve(result.openid);
       })
       getOpenid.then((saveOpenid: string) => {
-        shirtCollection.where({
+        db.collection('shirt').where({
           _openid: saveOpenid,
         })
           .get()
@@ -81,9 +73,8 @@ function Form() {
             else if (orderData.data.length === 1) {
               console.log(orderData.data[0])
               setPurchased(true)
-              setDataExist(true)
+              setPaid(orderData.data[0].paid)
               setRequireMail(orderData.data[0].requireMail);
-              setPurchased(orderData.data[0].paid)
               setData((prev) => {
                 return ({
                   ...prev,
@@ -116,6 +107,7 @@ function Form() {
       console.log(err)
       // handle error
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function AmountSelect() {
@@ -211,6 +203,12 @@ function Form() {
 
   const [requireMail, setRequireMail] = useState(false);
 
+  function CustomText() {
+    if (purchased && paid) return <View>保存订单修改</View>
+    else if (!purchased && !paid) return <View>提交并支付</View>
+    else return <View>继续支付</View>
+  }
+
   return (
     <View className='container'>
 
@@ -288,21 +286,6 @@ function Form() {
         </Picker>
       </View>
 
-      {/* <View className='selector-body'>
-        <Picker
-          mode='selector'
-          value={0}
-          range={[1, 2, 3, 4, 5]}
-          onChange={(e) => { setData(prev => { return { ...prev, count: [1, 2, 3, 4, 5][e.detail.value] } }) }}
-          disabled={purchased}
-        >
-          <View className='picker common-selector'>
-            <Text className='text'>数量</Text>
-            <View className='picker-label'>{data.count}</View>
-            <Image className='arrow' src={arrow} />
-          </View>
-        </Picker>
-      </View> */}
       <AmountSelect />
 
       <View className='selector-body'>
@@ -332,6 +315,7 @@ function Form() {
       <View className='wrapper'>
         <Button
           onClick={() => {
+            console.log(data);
             if (data.studentId == '' || data.name == '' || data.phone == '' || data.count == 0 || (requireMail && data.mailAddress == '')) {
               Taro.showToast({
                 title: '请完整填写表单！',
@@ -346,7 +330,7 @@ function Form() {
                 success: function (res) {
                   if (res.confirm) {
                     Taro.showLoading({ title: '加载中', mask: true })
-                    if (purchased) {
+                    if (purchased && paid) {
                       db.collection("shirt").where({
                         _openid: data.openid,
                       }).get().then((e) => {
@@ -367,7 +351,7 @@ function Form() {
                         })
                       })
                     }
-                    else {
+                    else if (!purchased && !paid) {
                       Taro.cloud.callFunction({
                         name: "makeOrder",
                         data: {
@@ -379,25 +363,21 @@ function Form() {
                           console.log(respond)
                           let result: any = respond.result;
                           const payment = result.payment;
-                          let id ;
-                          if(!dataExist){
-                            let { _id } = await shirtCollection.add({
-                              data: {
-                                studentId: data.studentId,
-                                name: data.name,
-                                size: data.size,
-                                phone: data.phone,
-                                count: data.count,
-                                requireMail: requireMail,
-                                mailAddress: data.mailAddress,
-                                orderInfo: payment,
-                                paid: false,
-                                realPayPrice: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
-                              }
-                            })
-                            console.log(_id);
-                            id = _id
-                          }
+                          let { _id } = await db.collection('shirt').add({
+                            data: {
+                              studentId: data.studentId,
+                              name: data.name,
+                              size: data.size,
+                              phone: data.phone,
+                              count: data.count,
+                              requireMail: requireMail,
+                              mailAddress: data.mailAddress,
+                              orderInfo: payment,
+                              paid: false,
+                              realPayPrice: data.count * shirt_price + ((requireMail) ? mail_fee : 0),
+                            }
+                          })
+                          console.log(_id);
                           // 调起微信客户端支付
                           Taro.requestPayment({
                             ...payment,
@@ -408,46 +388,85 @@ function Form() {
                                 icon: 'success',
                                 duration: 2000
                               })
-                              shirtCollection.doc(id).update(
+                              db.collection('shirt').doc(_id).update(
                                 {
                                   data: {
-                                    'paid': true
+                                    paid: true
                                   }
                                 }
-                              )
-                              // shirtCollection.
-                              // shirtCollection.add({
-                              //   data: {
-                              //     description: "learn cloud database",
-                              //     due: new Date("2018-09-01"),
-                              //     requireMail: requireMail,
-                              //     mailAddress: data.mailAddress === '' ? null : data.mailAddress,
-                              //     done: false
-                              //   }
-                              // })
-                              Taro.redirectTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
-                              Taro.hideLoading();
-                              /* 成功回调 */
+                              ).then(() => {
+                                Taro.redirectTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
+                                Taro.hideLoading();
+                                /* 成功回调 */
+                              })
                             },
                             fail(e) {
+                              /* 失败回调 */
                               console.log(e)
-                              if(e.errMsg==='requestPayment:fail cancel'){
+                              if (e.errMsg === 'requestPayment:fail cancel') {
                                 Taro.hideLoading();
                                 Taro.showToast({
-                                  title:'支付取消',
-                                  icon:'error',
+                                  title: '支付取消',
+                                  icon: 'error',
                                   duration: 2000,
                                 })
+                                Taro.redirectTo({ url: '/pages/form/index' })
                               }
-                              else{
-                                Taro.redirectTo({ url: `/pages/result/index?express=error` })
+                              else {
+                                Taro.redirectTo({ url: '/pages/result/index?express=error' })
                                 Taro.hideLoading();
                               }
-                              /* 失败回调 */
                             }
                           });
                         }
                       });
+                    }
+                    else if (purchased && !paid) {
+                      db.collection('shirt').where({
+                        _openid: data.openid
+                      }).get().then((response) => {
+                        console.log(response.data[0])
+                        let id: any = response.data[0]._id;
+                        let payment = response.data[0].orderInfo;
+                        Taro.requestPayment({
+                          ...payment,
+                          success(e) {
+                            console.log(e)
+                            Taro.showToast({
+                              title: '支付成功！',
+                              icon: 'success',
+                              duration: 2000
+                            })
+                            db.collection('shirt').doc(id).update(
+                              {
+                                data: {
+                                  paid: true
+                                }
+                              }
+                            ).then(() => {
+                              Taro.redirectTo({ url: `/pages/result/index?express=${requireMail ? 'express' : 'order'}` })
+                              Taro.hideLoading();
+                              /* 成功回调 */
+                            })
+                          },
+                          fail(e) {
+                            /* 失败回调 */
+                            console.log(e)
+                            if (e.errMsg === 'requestPayment:fail cancel') {
+                              Taro.hideLoading();
+                              Taro.showToast({
+                                title: '支付取消',
+                                icon: 'error',
+                                duration: 2000,
+                              })
+                            }
+                            else {
+                              Taro.redirectTo({ url: `/pages/result/index?express=error` })
+                              Taro.hideLoading();
+                            }
+                          }
+                        });
+                      })
                     }
                   } else if (res.cancel) {
                     console.log('用户点击取消')
@@ -455,12 +474,11 @@ function Form() {
                 }
               })
             }
-            console.log(data);
           }}
           className='btn-submit'
           type='default'
         >
-          {(purchased) ? '保存订单修改' : '提交并支付'}
+          <CustomText />
         </Button>
       </View>
     </View>
@@ -468,4 +486,3 @@ function Form() {
 }
 
 export default Form
-
