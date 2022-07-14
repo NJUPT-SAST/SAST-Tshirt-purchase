@@ -13,6 +13,7 @@ import Taro from '@tarojs/taro'
 import React, { useEffect, useRef, useState } from 'react'
 import './index.scss'
 import arrow from '../../imgs/right-arrow.svg'
+import sizes from '../../imgs/size.png'
 
 function Form() {
   Taro.cloud.init({
@@ -31,13 +32,19 @@ function Form() {
     mailAddress: '',
   })
 
+  const [goodsData, setGoodsData] = useState({
+    limit: '',
+    name: '',
+    price: 0,
+    mailfee: 0,
+  })
+
   /* purchased 为是否已经下单 */
   /* 全支付流程为先下单，后支付。下单时 paid 为 false,支付后覆盖写表为 true */
   const [purchased, setPurchased] = useState(false);
   const [paid, setPaid] = useState(false);
 
-  let shirt_price = 1;
-  let mail_fee = 1;
+
 
   const textHeight = useRef();
 
@@ -49,6 +56,17 @@ function Form() {
       data: {
 
       }
+    }).then((res)=>{
+      db.collection('goods').doc('6d85a2b962c10ea00e4940ea6d173ffe').get().then((gData:any)=>{
+        console.log(gData)
+        setGoodsData({
+          limit: gData.data.limit,
+          name: gData.data.name,
+          price: gData.data.price,
+          mailfee: gData.data.mailfee,
+        })
+      })
+      return res
     }).then(res => {
       const getOpenid = new Promise(resolve => {
         let result: any = res.result;
@@ -110,6 +128,9 @@ function Form() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  let shirt_price = goodsData.price;
+  let mail_fee = goodsData.mailfee;
+
   function AmountSelect() {
     if (purchased) {
       return (
@@ -165,10 +186,12 @@ function Form() {
             </View>
             <View className='price-text-row price-detail-margin'>
               <Text>运费</Text>
-              <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text>
+              {/* <Text className='price'>￥{(requireMail) ? mail_fee / 100 : 0}</Text> */}
+              <Text className='price'>免邮费</Text>
             </View>
           </View>
           <View className='total-price-row price-detail-margin'>
+            <Text style={{fontSize:'medium'}}>合计</Text>
             <Text id='total-price-text'>￥{(data.count * shirt_price + ((requireMail) ? mail_fee : 0)) / 100}</Text>
           </View>
         </View>
@@ -201,7 +224,7 @@ function Form() {
     else return null
   }
 
-  const [requireMail, setRequireMail] = useState(false);
+  const [requireMail, setRequireMail] = useState(true);
 
   function CustomText() {
     if (purchased && paid) return <View>保存订单修改</View>
@@ -275,8 +298,8 @@ function Form() {
         <Picker
           mode='selector'
           value={3}
-          range={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
-          onChange={(e) => { setData(prev => { return { ...prev, size: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'][e.detail.value] } }) }}
+          range={['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']}
+          onChange={(e) => { setData(prev => { return { ...prev, size: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'][e.detail.value] } }) }}
         >
           <View className='picker common-selector'>
             <Text className='text'>尺码</Text>
@@ -285,10 +308,11 @@ function Form() {
           </View>
         </Picker>
       </View>
+      <Image src={sizes} mode='aspectFit' style={{height:'180px'}} 	show-menu-by-longpress />
 
       <AmountSelect />
 
-      <View className='selector-body'>
+      {/* <View className='selector-body'>
         <View className='common-selector'>
           <Text className='text'>是否需要邮寄</Text>
           <RadioGroup
@@ -305,7 +329,7 @@ function Form() {
             </Label>
           </RadioGroup>
         </View>
-      </View>
+      </View> */}
 
       <AddressInput />
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
 import { View, Text, Button, Image, Checkbox, CheckboxGroup } from "@tarojs/components";
 import welcomeImg from "../../imgs/welcome.png"
+import checkUpdateVersion from '../../util/checkUpdate'
 import './index.scss'
 
 const Index = () => {
@@ -9,6 +10,7 @@ const Index = () => {
   const [acceptPrivate, setAcceptPrivate] = useState(false);
 
   useEffect(() => {
+    checkUpdateVersion()
     Taro.getStorage({
       key: 'acceptPrivate',
       success(res) {
