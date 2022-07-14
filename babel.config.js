@@ -6,7 +6,7 @@ module.exports = {
       'taro',
       {
         framework: 'react',
-        ts: true
+        ts: true,
       },
     ],
   ],
@@ -15,9 +15,9 @@ module.exports = {
       'import',
       {
         libraryName: 'taro-hooks',
-        camel2DashComponentName: false
+        camel2DashComponentName: false,
       },
       'taro-hooks',
-    ]
+    ],
   ],
 };

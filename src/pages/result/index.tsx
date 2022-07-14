@@ -1,22 +1,19 @@
 import { View, Text, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import React, { useEffect, useState } from 'react';
-import resultImg from '../../imgs/result.png'
-import express from '../../imgs/onrail.png'
-import error from '../../imgs/error.png'
-import './index.sass'
+import './index.sass';
 
 function Imgs(cases) {
   switch (cases) {
-    case 'order': return resultImg;
-    case 'express': return express;
-    case 'error': return error;
-    case 'update': return error;
-    default: return resultImg;
+    case 'order': return 'https://guangzhou-store.mxte.cc/sast-t-shirt/result.png';
+    case 'express': return 'https://guangzhou-store.mxte.cc/sast-t-shirt/onrail.png';
+    case 'error': return 'https://guangzhou-store.mxte.cc/sast-t-shirt/error.png';
+    case 'update': return 'https://guangzhou-store.mxte.cc/sast-t-shirt/result.png';
+    default: return 'https://guangzhou-store.mxte.cc/sast-t-shirt/error.png';
   }
 }
 
-//给用户展示的提示信息
+// 给用户展示的提示信息
 function notice(cases) {
   switch (cases) {
     case 'order': return '支付成功\n登记已提交!';
@@ -29,29 +26,32 @@ function notice(cases) {
 
 function Result(props) {
   useEffect(() => {
-    setCases(HandleUrl(props.tid))
+    setCases(HandleUrl(props.tid));
   }, [props.tid]);
-  //对传过来的url进行解析，获取需要的数据
+  // 对传过来的url进行解析，获取需要的数据
   function HandleUrl(url) {
-    return url.split('&')[0].slice(27)
+    return url.split('&')[0].slice(27);
   }
-  console.log(props.tid)
+  console.log(props.tid);
 
   const [cases, setCases] = useState('express');
   return (
-    <View className='wrapper'>
+    <View className="wrapper">
       <Image
         src={Imgs(cases)}
-        className='logo'
-      ></Image>
-      <Text className='title'>{notice(cases)}</Text>
-      <Button type='default' className='back' onClick={() => {
-        Taro.showLoading({ title: '加载中', mask: true })
-        Taro.redirectTo({ url: '/pages/form/index' })
-        Taro.hideLoading();
-      }}
+        className="logo"
+      />
+      <Text className="title">{notice(cases)}</Text>
+      <Button
+        type="default"
+        className="back"
+        onClick={() => {
+          Taro.showLoading({ title: '加载中', mask: true });
+          Taro.redirectTo({ url: '/pages/form/index' });
+          Taro.hideLoading();
+        }}
       >{cases === 'error' ? '返回重新提交订单' : '返回修改信息'}</Button>
-      <Text className='info copyright'>©2022 SAST</Text>
+      <Text className="info copyright">©2022 SAST</Text>
     </View>
   );
 }

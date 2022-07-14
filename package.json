@@ -26,7 +26,11 @@
     "dev:rn": "npm run build:rn -- --watch",
     "dev:qq": "npm run build:qq -- --watch",
     "dev:jd": "npm run build:jd -- --watch",
-    "dev:quickapp": "npm run build:quickapp -- --watch"
+    "dev:quickapp": "npm run build:quickapp -- --watch",
+    "eslint": "eslint --fix --ext  .js,.jsx,.ts,.tsx ./",
+    "stylelint": "stylelint \"**/*.{css,scss,less}\"",
+    "prettier": "prettier **/* --write",
+    "lint": "npm run eslint && npm run stylelint"
   },
   "browserslist": [
     "last 3 versions",
@@ -52,17 +56,16 @@
     "@tarojs/webpack-runner": "3.4.3",
     "@types/react": "^17.0.2",
     "@types/webpack-env": "^1.13.6",
-    "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "babel-plugin-import": "^1.13.3",
     "babel-preset-taro": "3.4.3",
-    "eslint": "^6.8.0",
-    "eslint-config-taro": "3.4.3",
+    "eslint": "^7.22.0",
     "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-react": "^7.8.2",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "stylelint": "9.3.0",
-    "typescript": "^4.2.3"
+    "stylelint": "^13.7.2",
+    "typescript": "^4.2.3",
+    "@iceworks/spec": "^1.0.0",
+    "prettier": "^2.1.0"
   },
   "engines": {
     "node": ">=12.0.0"
